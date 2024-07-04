@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: Dbot
+  jpa:
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/BotWithDBMySQL
+    username: root
+    password: JJi2dlwK23D23DgksqA
+    driver-class-name: com.mysql.cj.jdbc.Driver
+bot:
+  token: "7180309676:AAHmXYFbpJw1x79iQkBQ9D4vhzWuE6wNS7M"
+  name: DBMySQLBot
+
