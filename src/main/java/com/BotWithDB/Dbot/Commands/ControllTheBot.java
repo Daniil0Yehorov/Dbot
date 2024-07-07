@@ -12,6 +12,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.List;
+
 @Component
 public class ControllTheBot extends TelegramLongPollingBot{
     private final UserService userService;
@@ -38,19 +40,50 @@ public class ControllTheBot extends TelegramLongPollingBot{
         long chatId = update.getMessage().getChatId();
         boolean hasText = update.hasMessage() && update.getMessage().hasText();
         String command = update.getMessage().getText();
-        if (hasText && command.equals("/addMe")){
-            if (!userService.existsByChatId(chatId)){
-               User entity = new User();
-                entity.setChatId(chatId);
-                userService.saveEntity(entity);
-                sendMessage(chatId,"User added to DB");
-            }
-            else sendMessage(chatId, "U are in table yet!");
-        }
-        else if (hasText && command.equals("/me")){
-            sendMessage(chatId, userService.inTable(chatId).toString());
-        }
 
+        if (hasText) {
+            switch (command) {
+                case "/addMe":
+                    if (!userService.existsByChatId(chatId)) {
+                        User entity = new User();
+                        entity.setChatId(chatId);
+                        userService.saveEntity(entity);
+                        sendMessage(chatId, "User added to DB");
+                    } else {
+                        sendMessage(chatId, "You are already in the table!");
+                    }
+                    break;
+
+                case "/me":
+                    User user = userService.inTable(chatId);
+                    if (user != null) {
+                        sendMessage(chatId, user.toString());
+                    } else {
+                        sendMessage(chatId, "You are not in the table!");
+                    }
+                    break;
+
+                case "/removeMe":
+                    if (userService.existsByChatId(chatId)) {
+                        userService.deleteByChatId(chatId);
+                        sendMessage(chatId, "User removed from DB");
+                    } else {
+                        sendMessage(chatId, "You are not in the table!");
+                    }
+                    break;
+                //with subcommand
+                case "/listUsers":
+                    List<User> users = userService.getAllUsers();
+                    StringBuilder userList = new StringBuilder("Users in DB:\n");
+                    for (User u : users) {
+                        userList.append(u.toString()).append("\n");
+                    }
+                    sendMessage(chatId, userList.toString());
+                    break;
+                default:
+                    sendMessage(chatId, "Unknown command");
+            }
+        }
     }
 
 
