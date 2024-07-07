@@ -1,1 +1,1 @@
-A simple bot for working with a database
+A simple bot on Java for working with a MySQL database
