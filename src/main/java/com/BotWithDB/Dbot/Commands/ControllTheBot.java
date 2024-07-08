@@ -3,6 +3,7 @@ package com.BotWithDB.Dbot.Commands;
 import com.BotWithDB.Dbot.BotConf.BotConfiguration;
 import com.BotWithDB.Dbot.Models.User;
 import com.BotWithDB.Dbot.Service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.scheduling.annotation.Async;
@@ -17,6 +18,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class ControllTheBot extends TelegramLongPollingBot{
     private final UserService userService;
@@ -42,7 +44,6 @@ public class ControllTheBot extends TelegramLongPollingBot{
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             long chatId = update.getMessage().getChatId();
-            // boolean hasText = update.hasMessage() && update.getMessage().hasText();
             String command = update.getMessage().getText();
 
             switch (command) {
@@ -77,7 +78,6 @@ public class ControllTheBot extends TelegramLongPollingBot{
                         sendMessage(chatId, "You are not in the table!");
                     }
                     break;
-                //with subcommand
                 case "/listUsers":
                     List<User> users = userService.getAllUsers();
                     StringBuilder userList = new StringBuilder("Users in DB:\n");
@@ -144,7 +144,7 @@ public class ControllTheBot extends TelegramLongPollingBot{
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("Error occured"+e.getMessage());
         }
     }
     private void sendMessageWithKeyboard(Long chatId, String text) {
@@ -155,12 +155,13 @@ public class ControllTheBot extends TelegramLongPollingBot{
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("Error occured"+e.getMessage());
         }
     }
     private void startCommand(Long chatId, String username) {
         String text = "Hello my friend " + username;
         sendMessageWithKeyboard(chatId, text);
+        log.info("Replied to user "+ username);//logs
     }
     public static InlineKeyboardMarkup createKeyboard() {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
